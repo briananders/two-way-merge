@@ -3,7 +3,8 @@
 ## Setup
 
 1. Clone the repo
-2. Globally install the module `npm i -g`
+2. Install dependencies `npm i`
+3. Globally install the module `npm i -g`
 
 ## Usage
 

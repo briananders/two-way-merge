@@ -9,7 +9,8 @@
     "chalk": "^5.0.1",
     "commander": "^9.1.0",
     "fs-extra": "^10.0.1",
-    "glob": "^7.2.0"
+    "glob": "^7.2.0",
+    "utimes": "^5.1.1"
   },
   "bin": {
     "twowaymerge": "./index.js"

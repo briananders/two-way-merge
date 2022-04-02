@@ -1,7 +1,7 @@
 const glob = require('glob');
 const path = require('path');
 const fs = require('fs-extra');
-const file = require('fs-extra/lib/ensure/file');
+const { utimesSync } = require('utimes');
 
 function findConflicts(dirs, dirFiles) {
   const dirFilesA = dirFiles.a.map(fileName => fileName.substring(dirs.a.length));
@@ -25,8 +25,21 @@ function copyTo(filesList, source, destination) {
     if (fs.lstatSync(fileName).isDirectory()) return;
 
     const shortPath = fileName.substring(source.length);
+    const destinationPath = path.normalize(destination + shortPath);
+    const sourceStats = fs.statSync(fileName);
     fs.mkdirpSync(path.normalize(destination + path.dirname(shortPath)));
-    fs.copyFileSync(fileName, path.normalize(destination + shortPath));
+    fs.copyFileSync(fileName, destinationPath);
+    try {
+      utimesSync(destinationPath, {
+        btime: sourceStats.birthtimeMs,
+        mtime: sourceStats.mtimeMs,
+        atime: sourceStats.atimeMs,
+      });
+    } catch(e) {
+      console.error(e);
+      console.error(destinationPath);
+    }
+    // console.log(sourceStats);
   });
 }
 
@@ -44,7 +57,7 @@ function copyConflicts(conflictList, dirs) {
     if (aDate > bDate) {
       // fs.rmSync(fileB);
       copyTo([fileA], dirs.a, dirs.b);
-    } else {
+    } else if (aDate < bDate) {
       // fs.rmSync(fileA);
       copyTo([fileB], dirs.b, dirs.a);
     }
