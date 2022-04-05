@@ -1,5 +1,5 @@
 {
-  "name": "two-way-merge",
+  "name": "@briananders/two-way-merge",
   "version": "1.0.0",
   "description": "Merges two directories into each other",
   "main": "index.js",
@@ -13,9 +13,21 @@
     "utimes": "^5.1.1"
   },
   "bin": {
-    "twowaymerge": "./index.js"
+    "twowaymerge": "index.js"
   },
   "engines": {
     "node": "^17.5.0"
-  }
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/briananders/two-way-merge.git"
+  },
+  "bugs": {
+    "url": "https://github.com/briananders/two-way-merge/issues"
+  },
+  "homepage": "https://github.com/briananders/two-way-merge#readme"
 }
