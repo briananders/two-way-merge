@@ -1,5 +1,6 @@
 # two-way-merge
 
+This merge tool simply merges two directories into each other. When there is a conflict, the merge takes the file with the later modified date.
 ## Setup
 
 1. Clone the repo
