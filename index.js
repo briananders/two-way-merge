@@ -1,8 +1,9 @@
 #! /usr/bin/env node
 
+const crypto = require('crypto');
+const fs = require('fs-extra');
 const glob = require('glob');
 const path = require('path');
-const fs = require('fs-extra');
 const { program } = require('commander');
 const { utimesSync } = require('utimes');
 
@@ -21,6 +22,14 @@ function findNonConflicts(dirFiles, prefix, conflicts) {
     const shortName = fileName.substring(prefix.length);
     return !conflicts.includes(shortName);
   });
+}
+
+function getFileHash(fileName) {
+  const fileBuffer = fs.readFileSync(fileName);
+  const hashSum = crypto.createHash('sha256');
+  hashSum.update(fileBuffer);
+  const hex = hashSum.digest('hex');
+  return hex;
 }
 
 function copyTo(filesList, source, destination) {
@@ -55,6 +64,11 @@ function copyConflicts(conflictList, dirs) {
   conflictList.forEach(shortName => {
     const fileA = path.normalize(dirs.a + shortName);
     const fileB = path.normalize(dirs.b + shortName);
+
+    if (getFileHash(fileA) === getFileHash(fileB)) {
+      // console.log(`Hashes match:\n${fileA}\n${fileB}`);
+      return;
+    }
 
     const statsA = fs.statSync(fileA);
     const statsB = fs.statSync(fileB);
