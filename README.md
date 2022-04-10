@@ -11,7 +11,7 @@ This merge tool simply merges two directories into each other. When there is a c
 
 In a crontab chron job, you have to link absolutely as your PATH is empty.
 
-DO NOT DO THIS: `twowaymerge merge path/to/directory path/to/another/directory`
+DO NOT DO THIS: `twowaymerge merge "~/Google Drive/configs" "~/configs"`
 
 Do this: `/Users/briananders/.nvm/versions/node/v17.5.0/bin/node /opt/homebrew/lib/node_modules/@briananders/two-way-merge/index.js merge "/Users/briananders/Google Drive/configs" "/Users/briananders/configs"`
 
