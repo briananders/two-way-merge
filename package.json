@@ -1,6 +1,6 @@
 {
   "name": "@briananders/two-way-merge",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Merges two directories into each other",
   "main": "index.js",
   "author": "Brian Anders",
