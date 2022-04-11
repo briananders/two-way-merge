@@ -65,7 +65,7 @@ function copyConflicts(conflictList, dirs) {
     const fileA = path.normalize(dirs.a + shortName);
     const fileB = path.normalize(dirs.b + shortName);
 
-    if (getFileHash(fileA) === getFileHash(fileB)) {
+    if (!fs.lstatSync(fileA).isDirectory() && getFileHash(fileA) === getFileHash(fileB)) {
       // console.log(`Hashes match:\n${fileA}\n${fileB}`);
       return;
     }
