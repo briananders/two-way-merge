@@ -2,6 +2,8 @@
 
 This merge tool simply merges two directories into each other. When there is a conflict, the merge takes the file with the later modified date.
 
+Any file that ends with `.delete` will flag the file as requiring deletion. For instance `dirA/path/to/file.delete` will delete `dirA/path/to/file`, `dirB/path/to/file`, `dirA/path/to/file.delete`, and `dirB/path/to/file.delete`
+
 ## Installation
 
 `npm i -g @briananders/two-way-merge`

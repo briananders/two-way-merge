@@ -6,6 +6,7 @@ const glob = require('glob');
 const path = require('path');
 const { program } = require('commander');
 const { utimesSync } = require('utimes');
+const { error, log } = console;
 
 function findConflicts(dirs, dirFiles) {
   const dirFilesA = dirFiles.a.map(fileName => fileName.substring(dirs.a.length));
@@ -48,15 +49,15 @@ function copyTo(filesList, source, destination) {
         atime: Math.floor(sourceStats.atimeMs),
       });
     } catch(e) {
-      console.error(e);
-      console.error({
+      error(e);
+      error({
         btime: Math.floor(sourceStats.birthtimeMs),
         mtime: Math.floor(sourceStats.mtimeMs),
         atime: Math.floor(sourceStats.atimeMs),
       });
-      console.error(destinationPath);
+      error(destinationPath);
     }
-    // console.log(sourceStats);
+    // log(sourceStats);
   });
 }
 
@@ -66,7 +67,7 @@ function copyConflicts(conflictList, dirs) {
     const fileB = path.normalize(dirs.b + shortName);
 
     if (!fs.lstatSync(fileA).isDirectory() && getFileHash(fileA) === getFileHash(fileB)) {
-      // console.log(`Hashes match:\n${fileA}\n${fileB}`);
+      // log(`Hashes match:\n${fileA}\n${fileB}`);
       return;
     }
 
@@ -86,11 +87,53 @@ function copyConflicts(conflictList, dirs) {
   });
 }
 
-function sync(dir1, dir2) {
-console.log(`syncing ${dir1} <-> ${dir2}`);
+function attemptDelete(dirA, dirB, deleteFileName) {
+  const fileName = deleteFileName.replace(/\.delete$/, '');
+
+  const fileA = dirA + fileName;
+  const fileB = dirB + fileName;
+  const deleteFileA = dirA + deleteFileName;
+  const deleteFileB = dirB + deleteFileName;
+
+  [fileA, fileB, deleteFileA, deleteFileB].forEach((file) => {
+    if(fs.existsSync(file)) {
+      fs.removeSync(file);
+      log(`delete ${file}`);
+    }
+  })
+}
+
+function clean(dirA, dirB) {
+  log(`delete ${dirA} <-> ${dirB}`);
   const dirs = {
-    a: path.resolve(dir1),
-    b: path.resolve(dir2),
+    a: path.resolve(dirA),
+    b: path.resolve(dirB),
+  };
+  const deleteDirFiles = {
+    a: glob.sync(`${dirs.a}/**/*.delete`),
+    b: glob.sync(`${dirs.b}/**/*.delete`),
+  };
+  const deleteDirFileNames = {
+    a: deleteDirFiles.a.map((fileName) => fileName.substring(dirs.a.length)),
+    b: deleteDirFiles.b.map((fileName) => fileName.substring(dirs.b.length))
+  }
+
+  const fileNames = [...deleteDirFileNames.a, ...deleteDirFileNames.b];
+
+  fileNames.forEach((file) => {
+    attemptDelete(dirA, dirB, file);
+  });
+
+}
+
+function merge(dirA, dirB) {
+  clean(dirA, dirB);
+
+  log(`syncing ${dirA} <-> ${dirB}`);
+
+  const dirs = {
+    a: path.resolve(dirA),
+    b: path.resolve(dirB),
   };
   const dirFiles = {
     a: glob.sync(`${dirs.a}/**/*`),
@@ -105,14 +148,14 @@ console.log(`syncing ${dir1} <-> ${dir2}`);
   copyTo(nonConflictsB, dirs.b, dirs.a);
   copyConflicts(conflicts, dirs);
 
-  // console.log(nonConflictsA, nonConflictsB, conflicts);
-  console.log('Done');
+  // log(nonConflictsA, nonConflictsB, conflicts);
+  log('Done');
 }
 
 program
-    .command('merge <dir1> <dir2>')
+    .command('merge <dirA> <dirB>')
     .description('Syncs two directories to have the same contents')
-    .action(sync);
+    .action(merge);
 
 
 program.parse()
